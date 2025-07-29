@@ -1,4 +1,5 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Button from '@/components/ui/button/Button.vue';
 import { listings } from '@/data/listings.js';
@@ -13,7 +14,16 @@ function goToPage(path) {
 }
 
 const id = parseInt(route.params.id);
-const listing = listings.find(item => item.id === id);
+const listing = ref(null);
+// const listing = listings.find(item => item.id === id);
+
+onMounted(() => {
+    const saved = localStorage.getItem('customListings');
+    const customListings = saved ? JSON.parse(saved) : [];
+    const allListings = [...listings, ...customListings];
+
+    listing.value = allListings.find(item => item.id === id);
+});
 </script>
 
 <template>
@@ -28,7 +38,7 @@ const listing = listings.find(item => item.id === id);
             <p class="text-lg mt-[20px] font-bold">Опис:</p>
             <p class="text-lg">{{ listing.desc }}</p>
 
-            <p class="text-lg mt-[20px] font-bold">Інформація про власника(ці):</p>
+            <p class="text-lg mt-[20px] font-bold">Інформація про власника:</p>
             <p class="text-lg">Ім'я: {{ listing.ownerName }}</p>
             <p class="text-lg">Номер телефону: {{ listing.ownerPhone }}</p>
             <p class="text-lg">Email: {{ listing.ownerEmail }}</p>
@@ -38,7 +48,7 @@ const listing = listings.find(item => item.id === id);
         <div v-else>
             <p class="font-bold">Упс! Схоже щось пішло не так 😔</p>
             <p>Оголошення не знайдено.</p>
-            <Button @click="goToPage('/')" class="mt-[20px] bg-blue-600 hover:bg-blue-800">
+            <Button @click="goToPage('/')" class="mb-[300px] mt-[20px] bg-blue-600 hover:bg-blue-800">
             Повернутись назад</Button>
         </div>
     </div>

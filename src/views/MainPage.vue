@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { listings } from '@/data/listings.js';
+import { listings as staticListings } from '@/data/listings.js';
 
 const router = useRouter();
 
@@ -20,13 +20,22 @@ const typeFilter = ref([]);
 const types = ['квартира', 'будинок'];
 
 const filteredListings = computed(() => {
-    return listings.filter(item => {
+    return allListings.value.filter(item => {
         const matchesCity = !cityFilter.value || item.city.toLowerCase().includes(cityFilter.value.toLowerCase());
         const matchesPriceFrom = !priceFrom.value || item.price >= priceFrom.value;
         const matchesPriceTo = !priceTo.value || item.price <= priceTo.value;
         const matchesType = typeFilter.value.length === 0 || typeFilter.value.includes(item.type);
         return matchesCity && matchesPriceFrom && matchesPriceTo && matchesType;
     });
+});
+
+const allListings = ref([]);
+
+onMounted(() => {
+    const saved = localStorage.getItem('customListings');
+    const customListings = saved ? JSON.parse(saved) : [];
+
+    allListings.value = [...staticListings, ...customListings];
 });
 </script>
 
